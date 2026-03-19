@@ -6,7 +6,7 @@ namespace EvaluationList.Domain.Entities.Scoring;
 /// <summary>
 /// Класс представляет конкретный балл, выставленный за проект по определенному критерию.
 /// </summary>
-public class Assessment : IEntity
+public record Assessment : IEntity
 {
     public required Guid Id { get; init; } = Guid.CreateVersion7();
     public required Guid ProjectId { get; init; }

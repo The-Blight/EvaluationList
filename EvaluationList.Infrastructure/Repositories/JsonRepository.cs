@@ -1,104 +1,103 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 using EvaluationList.Domain.Interfaces;
 
 namespace EvaluationList.Infrastructure.Repositories;
 
 /// <summary>
-/// Универсальный репозиторий для работы с данными в формате JSON.
-/// Обеспечивает персистентность объектов, реализующих интерфейс <see cref="IEntity"/>.
+/// Репозиторий для сохранения данных в JSON-файлы с использованием паттерна DTO.
+/// Автоматически маппит сущности перед сохранением и после чтения.
 /// </summary>
-/// <typeparam name="T">Тип сущности, ограниченный интерфейсом <see cref="IEntity"/>.</typeparam>
-public class JsonRepository<T> : IRepository<T> where T : IEntity
+/// <typeparam name="TEntity">Тип доменной сущности (реализует IEntity).</typeparam>
+/// <typeparam name="TDto">Тип DTO, используемый для сериализации.</typeparam>
+public class JsonRepository<TEntity, TDto> : IRepository<TEntity> where TEntity : IEntity
 {
     private readonly string _filePath;
+    private readonly IMapper<TEntity, TDto> _mapper;
 
     private readonly JsonSerializerOptions _options = new()
     {
-        WriteIndented = true,
-        IncludeFields = true
+        WriteIndented = true
     };
 
 
-    public JsonRepository(string fileName)
+    /// <summary>
+    /// Инициализирует репозиторий с указанием файла и маппера.
+    /// </summary>
+    /// <param name="fileName">Имя файла (создается в папке запуска приложения).</param>
+    /// <param name="mapper">Реализация маппера для трансляции Entity в DTO и обратно.</param>
+    public JsonRepository(string fileName, IMapper<TEntity, TDto> mapper)
     {
         _filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
+        _mapper = mapper;
     }
 
 
-    /// <summary>
-    /// Добавляет новую сущность в JSON-хранилище.
-    /// </summary>
-    /// <param name="entity">Объект для сохранения.</param>
-    public void Create(T entity)
+    
+    public void Create(TEntity entity)
     {
-        var all = GetAll().ToList();
-        all.Add(entity);
-        WriteInJson(all);
+        var dtos = ReadDtoFromJson();
+        dtos.Add(_mapper.ToDto(entity));
+        WriteDtoToJson(dtos);
     }
 
-    /// <summary>
-    /// Выполняет поиск сущности по её уникальному идентификатору.
-    /// </summary>
-    /// <param name="id">GUID искомой сущности.</param>
-    /// <returns>Возвращает сущность или <see langword="null"/>, если объект не найден.</returns>
-    public T? GetById(Guid id)
+    public TEntity? GetById(Guid id)
     {
-        return ReadFromJson().FirstOrDefault(i => i.Id == id);
+        var dto = ReadDtoFromJson().FirstOrDefault(d =>
+            _mapper.ToDomain(d).Id == id);
+
+        return dto is null ? default : _mapper.ToDomain(dto);
     }
 
-    /// <summary>
-    /// Извлекает все записи из JSON-файла.
-    /// </summary>
-    /// <returns>Коллекция всех объектов типа <typeparamref name="T"/>.</returns>
-    public IEnumerable<T> GetAll() => ReadFromJson();
-
-
-    /// <summary>
-    /// Обновляет существующую сущность в файле на основе совпадения <see cref="IEntity.Id"/>.
-    /// </summary>
-    /// <param name="entity">Обновленный объект.</param>
-    /// <remarks>Если объект с таким Id не найден, операция будет проигнорирована.</remarks>
-    public void Update(T entity)
+    public IEnumerable<TEntity> GetAll()
     {
-        var all = ReadFromJson();
-        var index = all.FindIndex(i => i.Id == entity.Id);
+        var dtos = ReadDtoFromJson();
+        return dtos.Select(d => _mapper.ToDomain(d));
+    }
+
+    public void Update(TEntity entity)
+    {
+        var dtos = ReadDtoFromJson();
+        var index = dtos.FindIndex(d => _mapper.ToDomain(d).Id == entity.Id);
 
         if (index == -1) return;
-        all[index] = entity;
-        WriteInJson(all);
+
+        dtos[index] = _mapper.ToDto(entity);
+        WriteDtoToJson(dtos);
     }
 
-    /// <summary>
-    /// Удаляет сущность из хранилища по идентификатору.
-    /// </summary>
-    /// <param name="id">GUID объекта, который нужно удалить.</param>
     public void Delete(Guid id)
     {
-        var all = ReadFromJson();
-        var itemToRemove = all.FirstOrDefault(i => i.Id == id);
+        var dtos = ReadDtoFromJson();
+        var itemToRemove = dtos.FirstOrDefault(d => _mapper.ToDomain(d).Id == id);
 
         if (itemToRemove is null) return;
-        all.Remove(itemToRemove);
-        WriteInJson(all);
+
+        dtos.Remove(itemToRemove);
+        WriteDtoToJson(dtos);
     }
 
+
     /// <summary>
-    /// Приватный метод для считывания данных с диска и их десериализации.
+    /// Читает и десериализует список DTO из файла
     /// </summary>
-    /// <returns>Список объектов или пустой список, если файл отсутствует.</returns>
-    private List<T> ReadFromJson()
+    /// <returns>Список объектов DTO или пустой список, если файл отсутствует.</returns>
+    private List<TDto> ReadDtoFromJson()
     {
         if (!File.Exists(_filePath)) return [];
 
         var json = File.ReadAllText(_filePath);
-        return JsonSerializer.Deserialize<List<T>>(json, _options) ?? [];
+        return JsonSerializer.Deserialize<List<TDto>>(json, _options) ?? [];
     }
 
     /// <summary>
-    /// Приватный метод для сериализации списка объектов и записи в файл.
-    /// </summary>
-    /// <param name="list">Список сущностей для сохранения.</param>
-    private void WriteInJson(List<T> list)
+    /// Сериализует список DTO и записывает в файл.
+    /// </summary>      
+    /// <param name="list">Список сущностей для записи.</param>
+    private void WriteDtoToJson(List<TDto> list)
     {
         var json = JsonSerializer.Serialize(list, _options);
         File.WriteAllText(_filePath, json);

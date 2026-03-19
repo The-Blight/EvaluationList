@@ -5,9 +5,9 @@ using Microsoft.VisualBasic;
 namespace EvaluationList.Domain.Entities.Scoring;
 
 /// <summary>
-/// Класс представляет критерий оценки (например, "Эстетика" или "Работоспособность").
+/// Класс представляет критерий оценки.
 /// </summary>
-public class Criterion : IEntity
+public record Criterion : IEntity
 {
     public required Guid Id { get; init; } = Guid.CreateVersion7();
 
