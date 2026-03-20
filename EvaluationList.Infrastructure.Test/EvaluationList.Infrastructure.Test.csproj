@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Evaluation.Tests\Evaluation.Tests.csproj" />
       <ProjectReference Include="..\EvaluationList.Domain\EvaluationList.Domain.csproj" />
       <ProjectReference Include="..\EvaluationList.Infrastructure\EvaluationList.Infrastructure.csproj" />
     </ItemGroup>
