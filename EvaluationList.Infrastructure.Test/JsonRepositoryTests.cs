@@ -36,10 +36,11 @@ public class JsonRepositoryTests : IDisposable
     public JsonRepositoryTests()
     {
         _testFileName = $"test.repo_{Guid.CreateVersion7()}.json";
-        _fullFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _testFileName);
+        _fullFilePath = Path.Combine("/Users/fil/Desktop/EvaluationList/EvaluationList/EvaluationList.Infrastructure.Test/jsonForTests", _testFileName);
 
         var mapper = new TestMapper();
-        _repository = new JsonRepository<TestEntity, TestDto>(_testFileName, mapper);
+        
+        _repository = new JsonRepository<TestEntity, TestDto>(_fullFilePath, mapper);
     }
 
     public void Dispose()
@@ -54,12 +55,12 @@ public class JsonRepositoryTests : IDisposable
     [Fact]
     public void Create_ShouldCreateFile_And_SaveEntity()
     {
-        var entity = new TestEntity { Id = Guid.CreateVersion7(), Data = "Тестовые данные" };
+        var entity = new TestEntity { Id = Guid.CreateVersion7(), Data = "Test data" };
         _repository.Create(entity);
         var allEntities = _repository.GetAll().ToList();
 
         Assert.Multiple(
-             () => Assert.True(File.Exists(_fullFilePath), "Файл должен был создаться на диске."),
+            () => Assert.True(File.Exists(_fullFilePath), "Файл должен был создаться на диске."),
             () => Assert.Single(allEntities),
             () => Assert.Equal(entity.Id, allEntities[0].Id),
             () => Assert.Equal(entity.Data, allEntities[0].Data)

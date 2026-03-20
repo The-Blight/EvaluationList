@@ -7,7 +7,8 @@ namespace EvaluationList.Infrastructure.Mappers;
 
 
 /// <summary>
-/// Реализация маппера для агрегата Оценочного листа.
+/// Реализация маппера для Оценочного листа.
+/// Инкапсулирует логику переноса данных между агрегатом и JSON-моделью.
 /// </summary>
 public class EvaluationListMapper : IMapper<Domain.EvaluationList, EvaluationListDto>
 {
