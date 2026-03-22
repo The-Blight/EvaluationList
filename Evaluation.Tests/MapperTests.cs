@@ -16,24 +16,24 @@ public class MapperTests
         {
             ExhibitionTitle = "Тестовая выставка",
             AgeGroup = "Студенты",
-            Id = default
+            Id = Guid.CreateVersion7()
         };
 
-        var expertId = Guid.NewGuid();
-        var projectId = Guid.NewGuid();
+        var expertId = Guid.CreateVersion7();
+        var projectId = Guid.CreateVersion7();
         var criterion = new Criterion
         {
+            Id = Guid.CreateVersion7(),
             CriterionName = "Дизайн",
-            MaxScore = 10,
-            Id = default
+            MaxScore = 10
         };
         var assessment = new Assessment
         {
+            Id = Guid.CreateVersion7(),
             ProjectId = projectId,
             CriterionId = criterion.Id,
             ExpertId = expertId,
-            Value = 9,
-            Id = default
+            Value = 9
         };
 
         originalSheet.AddExpert(expertId);

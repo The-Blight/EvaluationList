@@ -36,8 +36,7 @@ public class JsonRepositoryTests : IDisposable
     public JsonRepositoryTests()
     {
         _testFileName = $"test.repo_{Guid.CreateVersion7()}.json";
-        _fullFilePath = Path.Combine("/Users/fil/Desktop/EvaluationList/EvaluationList/EvaluationList.Infrastructure.Test/jsonForTests", _testFileName);
-
+        _fullFilePath = Path.Combine(Path.GetTempPath(), _testFileName);
         var mapper = new TestMapper();
         
         _repository = new JsonRepository<TestEntity, TestDto>(_fullFilePath, mapper);

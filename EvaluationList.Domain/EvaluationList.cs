@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EvaluationList.Domain.Entities.Participants;
 using EvaluationList.Domain.Entities.Scoring;
-using EvaluationList.Domain.Entities.Staff;
 using EvaluationList.Domain.Interfaces;
 
 namespace EvaluationList.Domain;
@@ -15,7 +13,7 @@ namespace EvaluationList.Domain;
 public class EvaluationList : IEntity
 {
     /// <inheritdoc/>
-    public required Guid Id { get; init; } = Guid.CreateVersion7();
+    public Guid Id { get; init; } = Guid.CreateVersion7();
     
     /// <summary>Название мероприятия или выставки.</summary>
     public required string ExhibitionTitle { get; init; }
@@ -54,10 +52,23 @@ public class EvaluationList : IEntity
         var criterion = _criteria.FirstOrDefault(c => c.Id == assessment.CriterionId)
                         ?? throw new InvalidOperationException("Критерий не найден в этом листе.");
 
+        if (!_expertIds.Contains(assessment.ExpertId))
+            throw new InvalidOperationException("Эксперт не прикреплен к этому листу.");
+
+        if (!_projectIds.Contains(assessment.ProjectId))
+            throw new InvalidOperationException("Проект не прикреплен к этому листу.");
+
         if (assessment.Value > criterion.MaxScore)
         {
             throw new ArgumentException(
                 $"Оценка {assessment.Value} превышает максимум ({criterion.MaxScore}) для '{criterion.CriterionName}'.");
+        }
+
+        if (_assessments.Any(a => a.ProjectId == assessment.ProjectId && 
+                                  a.ExpertId == assessment.ExpertId && 
+                                  a.CriterionId == assessment.CriterionId))
+        {
+            throw new InvalidOperationException("Оценка по данному критерию от этого эксперта для этого проекта уже выставлена.");
         }
 
         _assessments.Add(assessment);

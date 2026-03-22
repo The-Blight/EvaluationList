@@ -71,8 +71,7 @@ public class JsonRepository<TEntity, TDto> : IRepository<TEntity>
     /// <inheritdoc/>
     public TEntity? GetById(Guid id)
     {
-        var dto = ReadDtoFromJson().FirstOrDefault(d =>
-            _mapper.ToDomain(d).Id == id);
+        var dto = ReadDtoFromJson().FirstOrDefault(d => d.Id == id);
 
         return dto is null ? default : _mapper.ToDomain(dto);
     }
@@ -88,7 +87,7 @@ public class JsonRepository<TEntity, TDto> : IRepository<TEntity>
     public void Update(TEntity entity)
     {
         var dtos = ReadDtoFromJson();
-        var index = dtos.FindIndex(d => _mapper.ToDomain(d).Id == entity.Id);
+        var index = dtos.FindIndex(d => d.Id == entity.Id);
 
         if (index == -1) return;
 
@@ -101,7 +100,7 @@ public class JsonRepository<TEntity, TDto> : IRepository<TEntity>
     public void Delete(Guid id)
     {
         var dtos = ReadDtoFromJson();
-        var itemToRemove = dtos.FirstOrDefault(d => _mapper.ToDomain(d).Id == id);
+        var itemToRemove = dtos.FirstOrDefault(d => d.Id == id);
 
         if (itemToRemove is null) return;
 

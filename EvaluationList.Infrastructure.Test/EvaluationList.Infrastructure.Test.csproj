@@ -2,9 +2,10 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,9 +20,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Evaluation.Tests\Evaluation.Tests.csproj" />
       <ProjectReference Include="..\EvaluationList.Domain\EvaluationList.Domain.csproj" />
       <ProjectReference Include="..\EvaluationList.Infrastructure\EvaluationList.Infrastructure.csproj" />
     </ItemGroup>
-
+    
+    
 </Project>
