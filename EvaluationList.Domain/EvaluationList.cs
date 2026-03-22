@@ -9,25 +9,37 @@ using EvaluationList.Domain.Interfaces;
 namespace EvaluationList.Domain;
 
 /// <summary>
-/// Главный агрегат системы.
-/// Представляет собой оценочный лист конкретной выставки.
-/// Управляет правилами добавления оценок и гарантирует целостность данных.
+/// Корень агрегации: Оценочный лист выставки.
+/// Инкапсулирует бизнес-правила добавления оценок и управляет связями (через ID).
 /// </summary>
 public class EvaluationList : IEntity
 {
+    /// <inheritdoc/>
     public required Guid Id { get; init; } = Guid.CreateVersion7();
+    
+    /// <summary>Название мероприятия или выставки.</summary>
     public required string ExhibitionTitle { get; init; }
+    
+    /// <summary>Возрастная категория участников.</summary>
     public required string AgeGroup { get; init; }
 
+    // Храним внешние зависимости только по ID, чтобы избежать дублирования данных
     private readonly List<Guid> _expertIds = [];
     private readonly List<Guid> _projectIds = [];
     
     private readonly List<Criterion> _criteria = [];
     private readonly List<Assessment> _assessments = [];
 
+    /// <summary>Идентификаторы прикрепленных экспертов (Только для чтения).</summary>
     public IReadOnlyCollection<Guid> ExpertIds => _expertIds;
+    
+    /// <summary>Идентификаторы оцениваемых проектов (Только для чтения).</summary>
     public IReadOnlyCollection<Guid> ProjectIds => _projectIds;
+    
+    /// <summary>Список утвержденных критериев (Только для чтения).</summary>
     public IReadOnlyCollection<Criterion> Criteria => _criteria;
+    
+    /// <summary>Список выставленных оценок (Только для чтения).</summary>
     public IReadOnlyCollection<Assessment> Assessments => _assessments;
 
     
@@ -52,14 +64,19 @@ public class EvaluationList : IEntity
     }
 
 
+    /// <summary>Прикрепляет эксперта к листу по ID.</summary>
     public void AddExpert(Guid expertId) => _expertIds.Add(expertId);
+    
+    /// <summary>Прикрепляет проект к листу по ID.</summary>
     public void AddProject(Guid projectId) => _projectIds.Add(projectId);
+    
+    /// <summary>Добавляет новый критерий оценивания.</summary>
     public void AddCriterion(Criterion criterion) => _criteria.Add(criterion); 
     
     
     /// <summary>
-    /// Фабричный метод для восстановления объекта из хранилища.
-    /// Используется инфраструктурным слоем (Маппером) для десериализации.
+    /// Фабричный метод для восстановления объекта из хранилища о всеми приватными коллекциями
+    /// Используется инфраструктурным слоем (Маппером <see cref="IMapper{TEntity,TDto}"/>) для десериализации.
     /// </summary>
     public static EvaluationList Restore(Guid id, string title, string ageGroup,
                                          IEnumerable<Guid> expertIds, IEnumerable<Guid> projectIds,

@@ -17,9 +17,29 @@ public class JsonRepository<TEntity, TDto> : IRepository<TEntity>
     where TEntity : IEntity
     where TDto : IDto
 {
-    private readonly string _filePath;
+    
+    /// <summary>
+    /// Путь к файлу
+    /// </summary>
+    /// <exception cref="ArgumentException"> бросает исключение в случае отсуствие пути</exception>
+    public string FilePath
+    {
+        get;
+        init
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Путь к файлу не должен быть пустым", nameof(FilePath));
+
+            field = value; 
+        }
+    }
     private readonly IMapper<TEntity, TDto> _mapper;
 
+    
+    /// <summary>
+    /// Настройки сериализатора. 
+    /// Отключено экранирование кириллицы для читаемости JSON-файлов.
+    /// </summary>
     private readonly JsonSerializerOptions _options = new()
     {
         WriteIndented = true
@@ -29,23 +49,26 @@ public class JsonRepository<TEntity, TDto> : IRepository<TEntity>
     /// <summary>
     /// Инициализирует репозиторий с указанием файла и маппера.
     /// </summary>
-    /// <param name="fileName">Имя файла (создается в папке запуска приложения).</param>
+    /// <param name="filePath"> путь к файлу.</param>
     /// <param name="mapper">Реализация маппера для трансляции Entity в DTO и обратно.</param>
-    public JsonRepository(string fileName, IMapper<TEntity, TDto> mapper)
+    public JsonRepository(string filePath, IMapper<TEntity, TDto> mapper)
     {
-        _filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
+        
+        FilePath = filePath; 
         _mapper = mapper;
     }
 
 
     
+    /// <inheritdoc/>
     public void Create(TEntity entity)
     {
         var dtos = ReadDtoFromJson();
         dtos.Add(_mapper.ToDto(entity));
         WriteDtoToJson(dtos);
-    }
+    }  
 
+    /// <inheritdoc/>
     public TEntity? GetById(Guid id)
     {
         var dto = ReadDtoFromJson().FirstOrDefault(d =>
@@ -54,12 +77,14 @@ public class JsonRepository<TEntity, TDto> : IRepository<TEntity>
         return dto is null ? default : _mapper.ToDomain(dto);
     }
 
+    /// <inheritdoc/>
     public IEnumerable<TEntity> GetAll()
     {
         var dtos = ReadDtoFromJson();
         return dtos.Select(d => _mapper.ToDomain(d));
     }
 
+    /// <inheritdoc/>
     public void Update(TEntity entity)
     {
         var dtos = ReadDtoFromJson();
@@ -71,6 +96,8 @@ public class JsonRepository<TEntity, TDto> : IRepository<TEntity>
         WriteDtoToJson(dtos);
     }
 
+    
+    /// <inheritdoc/>
     public void Delete(Guid id)
     {
         var dtos = ReadDtoFromJson();
@@ -89,9 +116,9 @@ public class JsonRepository<TEntity, TDto> : IRepository<TEntity>
     /// <returns>Список объектов DTO или пустой список, если файл отсутствует.</returns>
     private List<TDto> ReadDtoFromJson()
     {
-        if (!File.Exists(_filePath)) return [];
+        if (!File.Exists(FilePath)) return [];
 
-        var json = File.ReadAllText(_filePath);
+        var json = File.ReadAllText(FilePath);
         return JsonSerializer.Deserialize<List<TDto>>(json, _options) ?? [];
     }
 
@@ -102,6 +129,6 @@ public class JsonRepository<TEntity, TDto> : IRepository<TEntity>
     private void WriteDtoToJson(List<TDto> list)
     {
         var json = JsonSerializer.Serialize(list, _options);
-        File.WriteAllText(_filePath, json);
+        File.WriteAllText(FilePath, json);
     }
 }

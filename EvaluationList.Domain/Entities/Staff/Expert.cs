@@ -5,10 +5,12 @@ using EvaluationList.Domain.Interfaces;
 namespace EvaluationList.Domain.Entities.Staff;
 
 /// <summary>
-/// Представляет сведения об эксперте с автоматической валидацией ФИО.
+/// Доменная сущность: Эксперт (Член жюри).
+/// Отвечает за хранение и строгую валидацию ФИО.
 /// </summary>
 public partial class Expert : IEntity
 {
+    /// <inheritdoc/>
     public Guid Id { get; init; } = Guid.CreateVersion7();
 
     /// <summary>
@@ -19,10 +21,11 @@ public partial class Expert : IEntity
     private static partial Regex NameRegex();
 
     
+    
     /// <summary>
     /// Имя эксперта. Обязательное поле.
     /// </summary>
-    /// <exception cref="ArgumentException">Выбрасывается, если имя не соответствует формату или пустое.</exception>
+    /// <exception cref="ArgumentException">Выбрасывается, если формат имени некорректен.</exception>
     public required string FirstName
     {
         get => field;
@@ -61,10 +64,11 @@ public partial class Expert : IEntity
         }
     }
 
+    
     /// <summary>
     /// Фамилия эксперта. Обязательное поле.
     /// </summary>
-    /// <exception cref="ArgumentException">Выбрасывается, если фамилия не соответствует формату или пустая.</exception>
+    /// <exception cref="ArgumentException">Выбрасывается, если формат фамилии некорректен.</exception>
     public required string LastName
     {
         get => field;
