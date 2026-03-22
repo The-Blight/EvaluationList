@@ -13,7 +13,7 @@ namespace EvaluationList.Infrastructure.Repositories;
 /// </summary>
 /// <typeparam name="TEntity">Тип доменной сущности (реализует IEntity).</typeparam>
 /// <typeparam name="TDto">Тип DTO, используемый для сериализации.</typeparam>
-public class JsonRepository<TEntity, TDto> : IRepository<TEntity> 
+public class StubJsonRepository<TEntity, TDto> : IRepository<TEntity> 
     where TEntity : IEntity
     where TDto : IDto
 {
@@ -51,7 +51,7 @@ public class JsonRepository<TEntity, TDto> : IRepository<TEntity>
     /// </summary>
     /// <param name="filePath"> путь к файлу.</param>
     /// <param name="mapper">Реализация маппера для трансляции Entity в DTO и обратно.</param>
-    public JsonRepository(string filePath, IMapper<TEntity, TDto> mapper)
+    public StubJsonRepository(string filePath, IMapper<TEntity, TDto> mapper)
     {
         
         FilePath = filePath; 

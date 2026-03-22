@@ -9,16 +9,16 @@ using Xunit;
 
 namespace EvaluationList.Infrastructure.Test;
 
-public class RealDomainRepositoryTests : IDisposable
+public class DomainJsonRepositoryIntegrationTests : IDisposable
 {
     private readonly string _testFileName;
-    private readonly JsonRepository<Domain.EvaluationList, EvaluationListDto> _repository;
+    private readonly StubJsonRepository<Domain.EvaluationList, EvaluationListDto> _repository;
 
-    public RealDomainRepositoryTests()
+    public DomainJsonRepositoryIntegrationTests()
     {
         _testFileName = Path.Combine(Path.GetTempPath(), $"real_domain_test_{Guid.CreateVersion7()}.json");
         var mapper = new EvaluationListMapper();
-        _repository = new JsonRepository<Domain.EvaluationList, EvaluationListDto>(_testFileName, mapper);
+        _repository = new StubJsonRepository<Domain.EvaluationList, EvaluationListDto>(_testFileName, mapper);
     }
 
     public void Dispose()

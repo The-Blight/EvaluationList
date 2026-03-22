@@ -26,20 +26,20 @@ public class TestMapper : IMapper<TestEntity, TestDto>
     public TestEntity ToDomain(TestDto dto) => new() { Id = dto.Id, Data = dto.Data };
 }
 
-public class JsonRepositoryTests : IDisposable
+public class StubJsonRepositoryTests : IDisposable
 {
     private readonly string _testFileName;
     private readonly string _fullFilePath;
-    private readonly JsonRepository<TestEntity, TestDto> _repository;
+    private readonly StubJsonRepository<TestEntity, TestDto> _repository;
 
 
-    public JsonRepositoryTests()
+    public StubJsonRepositoryTests()
     {
         _testFileName = $"test.repo_{Guid.CreateVersion7()}.json";
         _fullFilePath = Path.Combine(Path.GetTempPath(), _testFileName);
         var mapper = new TestMapper();
         
-        _repository = new JsonRepository<TestEntity, TestDto>(_fullFilePath, mapper);
+        _repository = new StubJsonRepository<TestEntity, TestDto>(_fullFilePath, mapper);
     }
 
     public void Dispose()
