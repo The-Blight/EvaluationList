@@ -13,7 +13,9 @@ namespace EvaluationList.Infrastructure.Repositories;
 /// </summary>
 /// <typeparam name="TEntity">Тип доменной сущности (реализует IEntity).</typeparam>
 /// <typeparam name="TDto">Тип DTO, используемый для сериализации.</typeparam>
-public class JsonRepository<TEntity, TDto> : IRepository<TEntity> where TEntity : IEntity
+public class JsonRepository<TEntity, TDto> : IRepository<TEntity> 
+    where TEntity : IEntity
+    where TDto : IDto
 {
     private readonly string _filePath;
     private readonly IMapper<TEntity, TDto> _mapper;
