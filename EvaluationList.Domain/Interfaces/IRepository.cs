@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace EvaluationList.Domain.Interfaces;
 
 /// <summary>
-/// Базовый интерфейс репозитория (паттерн Repository).
+/// Базовый интерфейс репозитория.
 /// Абстрагирует домен от конкретной реализации хранилища (БД, файлы, память).
 /// </summary>
 /// <typeparam name="TEntity">Тип сущности, с которой работает репозиторий.</typeparam>
