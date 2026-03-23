@@ -165,7 +165,6 @@ var allSheets = repository.GetAll().ToList();
 Console.WriteLine($"Всего мероприятий в базе: {allSheets.Count}");
 
 // Загружаем конкретную выставку по её ID 
-// (Маппер использует метод Restore, обходя повторную валидацию)
 var loadedSheet = repository.GetById(sheet.Id);
 
 // --- ОБНОВЛЕНИЕ (Update) ---
